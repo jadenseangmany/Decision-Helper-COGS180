@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+server/.env
+
+# Expo
+client/dist/
+client/.expo/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Server
+server/node_modules/
+
+# API (Vercel serverless)
+api/node_modules/

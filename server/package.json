@@ -1,0 +1,19 @@
+{
+  "name": "decision-helper-server",
+  "version": "1.0.0",
+  "description": "Backend server for Decision Helper — proxies OpenAI calls",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "openai": "^4.82.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
