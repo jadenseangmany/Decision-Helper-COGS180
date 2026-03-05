@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const OpenAI = require("openai");
+const mongoose = require("mongoose");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,14 +14,14 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // ─── POST /api/generate-questions ────────────────────────────────────────────
 // Accepts: { question: "Tacos or burritos" }
-// Returns: [{ id, text, lowLabel, highLabel }]
+// Returns: { questions: [{ id, text, lowLabel, highLabel }] }
 app.post("/api/generate-questions", async (req, res) => {
   try {
     const { question } = req.body;
     if (!question) return res.status(400).json({ error: "question is required" });
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5.4",
       temperature: 0.8,
       response_format: { type: "json_object" },
       messages: [
@@ -33,8 +34,7 @@ Each question should be answerable on a 1–10 scale. Provide low and high label
 Respond with ONLY valid JSON in this exact shape:
 {
   "questions": [
-    { "id": "q1", "text": "How much do you enjoy crunchy textures?", "lowLabel": "Not at all", "highLabel": "Love it" },
-    ...
+    { "id": "q1", "text": "How much do you enjoy crunchy textures?", "lowLabel": "Not at all", "highLabel": "Love it" }
   ]
 }`,
         },
@@ -46,17 +46,17 @@ Respond with ONLY valid JSON in this exact shape:
     });
 
     const parsed = JSON.parse(completion.choices[0].message.content);
-    res.json(parsed.questions);
+    res.json({ questions: parsed.questions });
   } catch (err) {
     console.error("generate-questions error:", err);
     res.status(500).json({ error: "Failed to generate questions" });
   }
 });
 
-// ─── POST /api/decide ────────────────────────────────────────────────────────
+// ─── POST /api/generate-reflections ──────────────────────────────────────────
 // Accepts: { question, answers: [{ questionText, value }] }
-// Returns: { recommendation, reasoning }
-app.post("/api/decide", async (req, res) => {
+// Returns: { reflectionQuestions: [{ id, text }] }
+app.post("/api/generate-reflections", async (req, res) => {
   try {
     const { question, answers } = req.body;
     if (!question || !answers)
@@ -67,24 +67,93 @@ app.post("/api/decide", async (req, res) => {
       .join("\n");
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5.4",
+      temperature: 0.8,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content: `You are a decision-helper assistant. The user is deciding between two options and has already answered several quantitative questions on a 1–10 scale.
+
+Your job is to generate exactly 2 short, thoughtful, open-ended reflection questions that will help the user think more deeply about their decision before receiving a recommendation.
+
+Draw inspiration from these kinds of intents (but do NOT use all of them—pick the 2 most relevant given the user's dilemma and their answers so far):
+- Why is this decision important to you?
+- What factors or priorities matter most for this decision?
+- What are the possible outcomes of each option?
+- Which option aligns best with your priorities and values?
+- After thinking through your options, which one are you leaning toward, and why?
+- Reflect on your decision-making process—what feels right?
+
+The goal is to help the user gain clarity and confidence, not to overwhelm them. Keep each question concise (1–2 sentences max).
+
+Respond with ONLY valid JSON in this exact shape:
+{
+  "reflectionQuestions": [
+    { "id": "r1", "text": "..." },
+    { "id": "r2", "text": "..." }
+  ]
+}`,
+        },
+        {
+          role: "user",
+          content: `I'm deciding between: ${question}\n\nHere are my answers so far:\n${answersText}`,
+        },
+      ],
+    });
+
+    const parsed = JSON.parse(completion.choices[0].message.content);
+    res.json({ reflectionQuestions: parsed.reflectionQuestions });
+  } catch (err) {
+    console.error("generate-reflections error:", err);
+    res.status(500).json({ error: "Failed to generate reflection questions" });
+  }
+});
+
+// ─── POST /api/decide ────────────────────────────────────────────────────────
+// Accepts: { question, answers: [{ questionText, value }], reflectionAnswers: [{ questionText, answerText }] }
+// Returns: { recommendation, reasoning }
+app.post("/api/decide", async (req, res) => {
+  try {
+    const { question, answers, reflectionAnswers } = req.body;
+    if (!question || !answers)
+      return res.status(400).json({ error: "question and answers are required" });
+
+    const answersText = answers
+      .map((a) => `• "${a.questionText}" → ${a.value}/10`)
+      .join("\n");
+
+    const reflectionAnswersText = reflectionAnswers && reflectionAnswers.length > 0
+      ? reflectionAnswers.map((a) => `• "${a.questionText}" → ${a.answerText}`).join("\n")
+      : "No reflection answers provided.";
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-5.4",
       temperature: 0.7,
       response_format: { type: "json_object" },
       messages: [
         {
           role: "system",
-          content: `You are a decision-helper assistant. The user was deciding between two options and answered several clarifying questions on a 1–10 scale.
+          content: `You are a decision-helper assistant. The user was deciding between two options and answered several clarifying questions on a 1–10 scale, as well as a couple of open-ended reflection questions.
 Using your own knowledge about the two options AND the user's answers, determine which option is the best fit.
+
+IMPORTANT: In your recommendation, use the ACTUAL NAME of the option (e.g. "Pizza", "Stay home", "Not killing the patient"), NOT generic labels like "Option A" or "Option B".
+
+Your reasoning MUST be thorough and persuasive. Write 4-6 sentences that:
+1. Reference SPECIFIC slider scores (e.g. "You rated X an 8/10, which suggests...") — cover at least 2-3 of the slider answers.
+2. Connect the user's reflection answers to the recommendation.
+3. Explain how the recommended option aligns with their stated priorities and values.
+4. Help the user feel confident that this is the right choice.
 
 Respond with ONLY valid JSON in this exact shape:
 {
-  "recommendation": "Option A",
-  "reasoning": "A 2-4 sentence explanation of why this option fits best, referencing the user's specific answers and how they relate to each option."
+  "recommendation": "The actual option name, not Option A/B",
+  "reasoning": "A thorough 4-6 sentence explanation referencing specific slider scores and reflection answers, explaining why this option is the best fit."
 }`,
         },
         {
           role: "user",
-          content: `I'm deciding between: ${question}\n\nHere are my answers:\n${answersText}`,
+          content: `I'm deciding between: ${question}\n\nHere are my quantitative answers:\n${answersText}\n\nHere are my reflection answers:\n${reflectionAnswersText}`,
         },
       ],
     });
@@ -96,6 +165,83 @@ Respond with ONLY valid JSON in this exact shape:
     res.status(500).json({ error: "Failed to decide" });
   }
 });
+
+// ─── Survey Response Schema ──────────────────────────────────────────────────
+const surveyResponseSchema = new mongoose.Schema({
+  question: { type: String, required: true },
+  recommendation: { type: String, required: true },
+  decisionTimeMs: { type: Number, required: true },
+  helpfulPart: {
+    type: String,
+    required: true,
+    enum: ["did_not_help", "scale_questions", "reflection_questions", "both"],
+  },
+  changedThinking: { type: Number, required: true, min: 1, max: 4 },
+  affectedSpeed: { type: Number, required: true, min: 1, max: 4 },
+  easierToThink: { type: Number, required: true, min: 1, max: 4 },
+  moreThoughtful: { type: Number, required: true, min: 1, max: 4 },
+  agreeWithDecision: { type: Number, required: true, min: 1, max: 4 },
+  confidence: { type: Number, required: true, min: 1, max: 10 },
+  additionalFeedback: { type: String, default: "" },
+  createdAt: { type: Date, default: Date.now },
+});
+
+const SurveyResponse =
+  mongoose.models.SurveyResponse ||
+  mongoose.model("SurveyResponse", surveyResponseSchema);
+
+// ─── POST /api/submit-survey ─────────────────────────────────────────────────
+app.post("/api/submit-survey", async (req, res) => {
+  try {
+    const {
+      question,
+      recommendation,
+      decisionTimeMs,
+      helpfulPart,
+      changedThinking,
+      affectedSpeed,
+      easierToThink,
+      moreThoughtful,
+      agreeWithDecision,
+      confidence,
+      additionalFeedback,
+    } = req.body;
+
+    if (!question || !recommendation || decisionTimeMs == null || !helpfulPart) {
+      return res.status(400).json({ error: "Missing required survey fields" });
+    }
+
+    const response = await SurveyResponse.create({
+      question,
+      recommendation,
+      decisionTimeMs,
+      helpfulPart,
+      changedThinking,
+      affectedSpeed,
+      easierToThink,
+      moreThoughtful,
+      agreeWithDecision,
+      confidence,
+      additionalFeedback: additionalFeedback || "",
+    });
+
+    res.json({ success: true, id: response._id });
+  } catch (err) {
+    console.error("submit-survey error:", err);
+    res.status(500).json({ error: "Failed to save survey response" });
+  }
+});
+
+// ─── Connect to MongoDB and start server ─────────────────────────────────────
+const MONGODB_URI = process.env.MONGODB_URI;
+if (MONGODB_URI) {
+  mongoose
+    .connect(MONGODB_URI)
+    .then(() => console.log("Connected to MongoDB"))
+    .catch((err) => console.error("MongoDB connection error:", err));
+} else {
+  console.warn("MONGODB_URI not set — survey submissions will fail");
+}
 
 app.listen(PORT, () => {
   console.log(`Decision Helper server running on http://localhost:${PORT}`);

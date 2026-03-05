@@ -15,7 +15,7 @@ module.exports = async function handler(req, res) {
         if (!question) return res.status(400).json({ error: "question is required" });
 
         const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
+            model: "gpt-5.4",
             temperature: 0.8,
             response_format: { type: "json_object" },
             messages: [
@@ -28,8 +28,7 @@ Each question should be answerable on a 1–10 scale. Provide low and high label
 Respond with ONLY valid JSON in this exact shape:
 {
   "questions": [
-    { "id": "q1", "text": "How much do you enjoy crunchy textures?", "lowLabel": "Not at all", "highLabel": "Love it" },
-    ...
+    { "id": "q1", "text": "How much do you enjoy crunchy textures?", "lowLabel": "Not at all", "highLabel": "Love it" }
   ]
 }`,
                 },
@@ -41,7 +40,7 @@ Respond with ONLY valid JSON in this exact shape:
         });
 
         const parsed = JSON.parse(completion.choices[0].message.content);
-        res.status(200).json(parsed.questions);
+        res.status(200).json({ questions: parsed.questions });
     } catch (err) {
         console.error("generate-questions error:", err);
         res.status(500).json({ error: "Failed to generate questions" });

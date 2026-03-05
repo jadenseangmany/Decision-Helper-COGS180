@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -36,7 +37,10 @@ export function ResultCard({ recommendation, reasoning }: ResultCardProps) {
     return (
         <Animated.View style={[styles.card, cardStyle]}>
             <View style={styles.badge}>
-                <Text style={styles.badgeText}>🎯 Our Pick</Text>
+                <View style={styles.badgeContent}>
+                    <Ionicons name="checkmark-circle" size={14} color="#7C3AED" style={{ marginRight: 4 }} />
+                    <Text style={styles.badgeText}>Our Pick</Text>
+                </View>
             </View>
             <Text style={styles.recommendation}>{recommendation}</Text>
             <View style={styles.divider} />
@@ -68,6 +72,10 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
         alignSelf: 'flex-start',
         marginBottom: 16,
+    },
+    badgeContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     badgeText: {
         fontSize: 13,
