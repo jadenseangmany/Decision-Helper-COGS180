@@ -54,6 +54,13 @@ const HELPFUL_OPTIONS = [
   { value: 'both', label: 'Both' },
 ] as const;
 
+const SUGGESTIONS = [
+  "Move away after graduation or stay near home?",
+  "A job far away that pays more vs. nearby that pays less?",
+  "Industry or research?",
+  "Should I keep talking to this guy or not?"
+];
+
 export default function DecisionScreen() {
   const [step, setStep] = useState<Step>('input');
   const [userQuestion, setUserQuestion] = useState('');
@@ -314,6 +321,22 @@ export default function DecisionScreen() {
           </View>
         </TouchableOpacity>
       </View>
+
+      <Animated.View entering={FadeInUp.delay(200).duration(400)} style={styles.suggestionsContainer}>
+        <Text style={styles.suggestionsLabel}>Need inspiration?</Text>
+        <View style={styles.suggestionsList}>
+          {SUGGESTIONS.map((suggestion, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.suggestionPill}
+              onPress={() => setUserQuestion(suggestion)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.suggestionText}>{suggestion}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </Animated.View>
 
       {error && (
         <Animated.View entering={FadeIn.duration(300)}>
@@ -750,6 +773,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  // Suggestions
+  suggestionsContainer: {
+    marginTop: 24,
+    paddingHorizontal: 8,
+  },
+  suggestionsLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#6b7280',
+    marginBottom: 12,
+    marginLeft: 4,
+  },
+  suggestionsList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  suggestionPill: {
+    backgroundColor: 'rgba(124, 58, 237, 0.06)',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(124, 58, 237, 0.15)',
+  },
+  suggestionText: {
+    fontSize: 13,
+    color: '#5b21b6',
+    fontWeight: '600',
   },
 
   // Loading step
