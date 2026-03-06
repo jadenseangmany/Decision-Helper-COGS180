@@ -25,6 +25,11 @@ module.exports = async function handler(req, res) {
 Your job is to generate 4-6 short, fun clarifying questions that will help determine which option suits them better.
 Each question should be answerable on a 1–10 scale. Provide low and high labels for the scale ends.
 
+IMPORTANT RULES:
+- Each question must focus on exactly ONE concept or trait. NEVER combine multiple traits in a single question (e.g. do NOT say "herbal and spicy" — ask about them separately).
+- Questions MUST directly reference the specific options the user is deciding between BY NAME. For example, if deciding between "Pizza" and "Sushi", ask "How much does the freshness of Sushi appeal to you?" not "How much do you value freshness?"
+- Make sure questions help distinguish between the two options — avoid questions where both options would score similarly.
+
 Respond with ONLY valid JSON in this exact shape:
 {
   "questions": [

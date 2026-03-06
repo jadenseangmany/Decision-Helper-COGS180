@@ -30,15 +30,13 @@ module.exports = async function handler(req, res) {
 
 Your job is to generate exactly 2 short, thoughtful, open-ended reflection questions that will help the user think more deeply about their decision before receiving a recommendation.
 
-Draw inspiration from these kinds of intents (but do NOT use all of them—pick the 2 most relevant given the user's dilemma and their answers so far):
-- Why is this decision important to you?
-- What factors or priorities matter most for this decision?
-- What are the possible outcomes of each option?
-- Which option aligns best with your priorities and values?
-- After thinking through your options, which one are you leaning toward, and why?
-- Reflect on your decision-making process—what feels right?
+IMPORTANT RULES:
+- Questions MUST reference the specific options by name (e.g. "Pizza" and "Sushi", not "Option A" and "Option B").
+- Questions must NOT be leading—do not suggest one option is better. Ask questions that let the user discover their own preference.
+- Do NOT just restate the choices. Instead, prompt the user to think about trade-offs, consequences, and feelings.
+- Focus on things like: what they'd regret missing out on, how each option fits their current mood or situation, or what matters most to them right now.
 
-The goal is to help the user gain clarity and confidence, not to overwhelm them. Keep each question concise (1–2 sentences max).
+Keep each question concise (1–2 sentences max).
 
 Respond with ONLY valid JSON in this exact shape:
 {

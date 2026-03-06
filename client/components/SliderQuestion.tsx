@@ -28,8 +28,8 @@ export function SliderQuestion({
                         minimumValue={1}
                         maximumValue={10}
                         step={1}
-                        value={value}
-                        onValueChange={onValueChange}
+                        value={isNaN(value) ? 5 : value}
+                        onValueChange={(v) => onValueChange(isNaN(v) ? 5 : Math.round(Math.min(10, Math.max(1, v))))}
                         minimumTrackTintColor="#7C3AED"
                         maximumTrackTintColor="rgba(124, 58, 237, 0.2)"
                         thumbTintColor="#7C3AED"
@@ -38,7 +38,7 @@ export function SliderQuestion({
                 <Text style={styles.label}>{highLabel}</Text>
             </View>
             <View style={styles.valueBadge}>
-                <Text style={styles.valueText}>{value}</Text>
+                <Text style={styles.valueText}>{isNaN(value) ? 5 : value}</Text>
                 <Text style={styles.valueSuffix}>/10</Text>
             </View>
         </View>
