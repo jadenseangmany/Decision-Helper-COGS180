@@ -23,7 +23,10 @@ module.exports = async function handler(req, res) {
             moreThoughtful,
             agreeWithDecision,
             confidence,
+            dilemmaDifficulty,
             additionalFeedback,
+            sliderAnswers,
+            reflectionAnswers,
         } = req.body;
 
         // Basic validation
@@ -42,7 +45,10 @@ module.exports = async function handler(req, res) {
             moreThoughtful,
             agreeWithDecision,
             confidence,
+            dilemmaDifficulty,
             additionalFeedback: additionalFeedback || "",
+            sliderAnswers: sliderAnswers || [],
+            reflectionAnswers: reflectionAnswers || [],
         });
 
         res.status(200).json({ success: true, id: response._id });

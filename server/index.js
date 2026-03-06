@@ -189,7 +189,10 @@ const surveyResponseSchema = new mongoose.Schema({
   moreThoughtful: { type: Number, required: true, min: 1, max: 4 },
   agreeWithDecision: { type: Number, required: true, min: 1, max: 4 },
   confidence: { type: Number, required: true, min: 1, max: 10 },
+  dilemmaDifficulty: { type: Number, required: true, min: 1, max: 10 },
   additionalFeedback: { type: String, default: "" },
+  sliderAnswers: [{ questionText: String, value: Number }],
+  reflectionAnswers: [{ questionText: String, answerText: String }],
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -211,7 +214,10 @@ app.post("/api/submit-survey", async (req, res) => {
       moreThoughtful,
       agreeWithDecision,
       confidence,
+      dilemmaDifficulty,
       additionalFeedback,
+      sliderAnswers,
+      reflectionAnswers,
     } = req.body;
 
     if (!question || !recommendation || decisionTimeMs == null || !helpfulPart) {
@@ -229,7 +235,10 @@ app.post("/api/submit-survey", async (req, res) => {
       moreThoughtful,
       agreeWithDecision,
       confidence,
+      dilemmaDifficulty,
       additionalFeedback: additionalFeedback || "",
+      sliderAnswers: sliderAnswers || [],
+      reflectionAnswers: reflectionAnswers || [],
     });
 
     res.json({ success: true, id: response._id });

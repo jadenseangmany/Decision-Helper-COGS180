@@ -77,6 +77,7 @@ export default function DecisionScreen() {
   const [surveyMoreThoughtful, setSurveyMoreThoughtful] = useState(0);
   const [surveyAgree, setSurveyAgree] = useState(0);
   const [surveyConfidence, setSurveyConfidence] = useState(5);
+  const [surveyDifficulty, setSurveyDifficulty] = useState(5);
   const [surveyFeedback, setSurveyFeedback] = useState('');
   const [surveySubmitting, setSurveySubmitting] = useState(false);
 
@@ -212,6 +213,16 @@ export default function DecisionScreen() {
     setSurveySubmitting(true);
     setError(null);
 
+    const sliderAnswers = questions.map((q) => ({
+      questionText: q.text,
+      value: answers[q.id],
+    }));
+
+    const reflectionAnswerPayload = reflectionQuestions.map((q) => ({
+      questionText: q.text,
+      answerText: reflectionAnswers[q.id] || '',
+    }));
+
     try {
       const res = await fetch(`${API_BASE}/api/submit-survey`, {
         method: 'POST',
@@ -227,7 +238,10 @@ export default function DecisionScreen() {
           moreThoughtful: surveyMoreThoughtful,
           agreeWithDecision: surveyAgree,
           confidence: surveyConfidence,
+          dilemmaDifficulty: surveyDifficulty,
           additionalFeedback: surveyFeedback,
+          sliderAnswers,
+          reflectionAnswers: reflectionAnswerPayload,
         }),
       });
       if (!res.ok) throw new Error('Server error');
@@ -257,6 +271,7 @@ export default function DecisionScreen() {
     setSurveyMoreThoughtful(0);
     setSurveyAgree(0);
     setSurveyConfidence(5);
+    setSurveyDifficulty(5);
     setSurveyFeedback('');
   };
 
@@ -537,8 +552,19 @@ export default function DecisionScreen() {
         />
       </Animated.View>
 
+      {/* Difficulty slider */}
+      <Animated.View entering={FadeInUp.delay(520).duration(400)}>
+        <SliderQuestion
+          text="How difficult was it to make this decision?"
+          lowLabel="Very easy"
+          highLabel="Very difficult"
+          value={surveyDifficulty}
+          onValueChange={(val) => setSurveyDifficulty(Math.round(val))}
+        />
+      </Animated.View>
+
       {/* Optional feedback */}
-      <Animated.View entering={FadeInUp.delay(560).duration(400)}>
+      <Animated.View entering={FadeInUp.delay(600).duration(400)}>
         <View style={styles.surveyCard}>
           <Text style={styles.surveyQuestionText}>
             What could make the tool more helpful? (optional)

@@ -17,7 +17,18 @@ const surveyResponseSchema = new mongoose.Schema({
     moreThoughtful: { type: Number, required: true, min: 1, max: 4 },
     agreeWithDecision: { type: Number, required: true, min: 1, max: 4 },
     confidence: { type: Number, required: true, min: 1, max: 10 },
+    dilemmaDifficulty: { type: Number, required: true, min: 1, max: 10 },
     additionalFeedback: { type: String, default: "" },
+
+    // User's actual inputs
+    sliderAnswers: [{
+        questionText: String,
+        value: Number
+    }],
+    reflectionAnswers: [{
+        questionText: String,
+        answerText: String
+    }],
 
     createdAt: { type: Date, default: Date.now },
 });
