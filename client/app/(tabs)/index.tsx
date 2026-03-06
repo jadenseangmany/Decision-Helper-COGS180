@@ -61,7 +61,7 @@ export default function DecisionScreen() {
   const [reflectionQuestions, setReflectionQuestions] = useState<ReflectionQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [reflectionAnswers, setReflectionAnswers] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ recommendation: string; reasoning: string } | null>(null);
+  const [result, setResult] = useState<{ recommendation: string; reasoning: string; alternativeOption?: string; alternativePerspective?: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
 
@@ -424,6 +424,8 @@ export default function DecisionScreen() {
         <ResultCard
           recommendation={result.recommendation}
           reasoning={result.reasoning}
+          alternativeOption={result.alternativeOption}
+          alternativePerspective={result.alternativePerspective}
         />
       )}
       <TouchableOpacity

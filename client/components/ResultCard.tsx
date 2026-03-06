@@ -12,9 +12,11 @@ import Animated, {
 interface ResultCardProps {
     recommendation: string;
     reasoning: string;
+    alternativeOption?: string;
+    alternativePerspective?: string;
 }
 
-export function ResultCard({ recommendation, reasoning }: ResultCardProps) {
+export function ResultCard({ recommendation, reasoning, alternativeOption, alternativePerspective }: ResultCardProps) {
     const scale = useSharedValue(0.8);
     const opacity = useSharedValue(0);
     const reasoningOpacity = useSharedValue(0);
@@ -47,6 +49,17 @@ export function ResultCard({ recommendation, reasoning }: ResultCardProps) {
             <Animated.View style={reasoningStyle}>
                 <Text style={styles.reasoningLabel}>Here's why:</Text>
                 <Text style={styles.reasoning}>{reasoning}</Text>
+
+                {alternativeOption && alternativePerspective && (
+                    <View style={styles.alternativeContainer}>
+                        <View style={styles.divider} />
+                        <View style={styles.alternativeHeaderRow}>
+                            <Ionicons name="flash" size={16} color="#f59e0b" style={{ marginRight: 6 }} />
+                            <Text style={styles.alternativeLabel}>For the plot: {alternativeOption}</Text>
+                        </View>
+                        <Text style={styles.reasoning}>{alternativePerspective}</Text>
+                    </View>
+                )}
             </Animated.View>
         </Animated.View>
     );
@@ -108,5 +121,25 @@ const styles = StyleSheet.create({
         color: '#4b5563',
         lineHeight: 24,
         fontWeight: '400',
+    },
+    alternativeContainer: {
+        marginTop: 12,
+        backgroundColor: 'rgba(245, 158, 11, 0.05)',
+        padding: 16,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(245, 158, 11, 0.15)',
+    },
+    alternativeHeaderRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    alternativeLabel: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#d97706',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
 });

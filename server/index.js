@@ -148,10 +148,14 @@ Your reasoning MUST be thorough and persuasive. Write 4-6 sentences that:
 3. Explain how the recommended option aligns with their stated priorities and values.
 4. Help the user feel confident that this is the right choice.
 
+In addition to your main recommendation, provide a separate "alternativePerspective". This should be 2-3 sentences of personalized feedback on what choosing the OTHER option (the one you didn't recommend) could lead to. Frame this as "what if we followed it for the plot" (e.g. embracing chaos, taking a risk, or choosing a fun but less logical path).
+
 Respond with ONLY valid JSON in this exact shape:
 {
   "recommendation": "The actual option name, not Option A/B",
-  "reasoning": "A thorough 4-6 sentence explanation referencing specific slider scores and reflection answers, explaining why this option is the best fit."
+  "reasoning": "A thorough 4-6 sentence explanation referencing specific slider scores and reflection answers, explaining why this option is the best fit.",
+  "alternativeOption": "The exact name of the other, non-recommended option",
+  "alternativePerspective": "A 2-3 sentence 'for the plot' perspective on choosing the other option."
 }`,
         },
         {
