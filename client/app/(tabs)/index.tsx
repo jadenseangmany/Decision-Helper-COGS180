@@ -28,9 +28,9 @@ import { Ionicons } from '@expo/vector-icons';
 
 // For local dev, point to the Express server. On Vercel, use relative URLs.
 const API_BASE = Platform.select({
-  web: 'http://localhost:3000',
-  android: 'http://10.0.2.2:3000',
-  default: 'http://localhost:3000',
+  web: '',
+  android: '',
+  default: '',
 });
 
 type Step = 'input' | 'loading-questions' | 'questions' | 'loading-reflections' | 'reflections' | 'loading-result' | 'result' | 'survey' | 'thank-you';
