@@ -56,9 +56,10 @@ const HELPFUL_OPTIONS = [
 
 const SUGGESTIONS = [
   "Move away after graduation or stay near home?",
-  "A job far away that pays more vs. nearby that pays less?",
-  "Industry or research?",
-  "Should I keep talking to them or not?"
+  "Study now or rest and start tomorrow?",
+  "Cook at home or order takeout?",
+  "Should I keep talking to this person or not?",
+  "Go out with friends or recharge alone tonight?"
 ];
 
 export default function DecisionScreen() {
