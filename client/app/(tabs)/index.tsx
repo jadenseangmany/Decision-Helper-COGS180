@@ -58,7 +58,7 @@ const SUGGESTIONS = [
   "Move away after graduation or stay near home?",
   "A job far away that pays more vs. nearby that pays less?",
   "Industry or research?",
-  "Should I keep talking to this guy or not?"
+  "Should I keep talking to them or not?"
 ];
 
 export default function DecisionScreen() {
