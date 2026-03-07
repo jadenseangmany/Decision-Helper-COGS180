@@ -1,0 +1,54 @@
+name: Database Connection Test
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test-db-connection:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        working-directory: ./api
+        run: npm install
+
+      - name: Test MongoDB Connection
+        working-directory: ./api
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: |
+          node -e "
+            const mongoose = require('mongoose');
+            async function testConnection() {
+              if (!process.env.MONGODB_URI) {
+                console.error('❌ MONGODB_URI environment variable is missing.');
+                console.error('Please ensure the MONGODB_URI repository secret is set in GitHub.');
+                process.exit(1);
+              }
+              try {
+                console.log('Attempting to connect to MongoDB...');
+                await mongoose.connect(process.env.MONGODB_URI, { 
+                  serverSelectionTimeoutMS: 5000 
+                });
+                console.log('✅ Successfully connected to the database.');
+                await mongoose.disconnect();
+                process.exit(0);
+              } catch (error) {
+                console.error('❌ Failed to connect to the database:');
+                console.error(error.message);
+                process.exit(1);
+              }
+            }
+            testConnection();
+          "
