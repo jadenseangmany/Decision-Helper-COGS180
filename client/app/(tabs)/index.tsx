@@ -217,7 +217,10 @@ export default function DecisionScreen() {
   };
 
   const handleSubmitSurvey = async () => {
-    if (!isSurveyComplete()) return;
+    if (!isSurveyComplete()) {
+      setError('Please answer all required feedback questions before submitting.');
+      return;
+    }
     setSurveySubmitting(true);
     setError(null);
 
@@ -609,7 +612,7 @@ export default function DecisionScreen() {
       <TouchableOpacity
         style={[styles.decideButton, (!isSurveyComplete() || surveySubmitting) && styles.submitButtonDisabled]}
         onPress={handleSubmitSurvey}
-        disabled={!isSurveyComplete() || surveySubmitting}
+        disabled={surveySubmitting}
         activeOpacity={0.8}
       >
         {surveySubmitting ? (

@@ -17,3 +17,6 @@ server/node_modules/
 
 # API (Vercel serverless)
 api/node_modules/
+
+.env
+.env.*
